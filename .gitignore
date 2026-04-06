@@ -1,4 +1,4 @@
-dat/autobackup
+dat/autobackup/*.dat
 data.7z
 dungeon.7z
 monsters.dat.bak

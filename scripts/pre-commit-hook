@@ -1,0 +1,32 @@
+#!/bin/sh
+# Pre-commit hook: runs the Detect-Shrink PowerShell script. Exits non-zero to block commit when issues found.
+repo_root="$(git rev-parse --show-toplevel)"
+tmp_out="$repo_root/.git/hooks/.detect-shrink.out"
+
+if command -v pwsh >/dev/null 2>&1; then
+  pwsh -NoProfile -ExecutionPolicy Bypass -File "$repo_root/scripts/Detect-Shrink.ps1" -Pct 5 -MinBytes 1 >"$tmp_out" 2>&1
+  status=$?
+else
+  powershell -NoProfile -ExecutionPolicy Bypass -File "$repo_root/scripts/Detect-Shrink.ps1" -Pct 5 -MinBytes 1 >"$tmp_out" 2>&1
+  status=$?
+fi
+
+if [ $status -ne 0 ]; then
+  echo "Commit aborted: Detect-Shrink found suspicious file size reductions."
+  if [ -s "$tmp_out" ]; then
+    files=$(awk -F": " '/: /{ a=(a? a", " $1 : $1) } END{ print a }' "$tmp_out")
+    if [ -n "$files" ]; then
+      echo "Files flagged: $files"
+    fi
+    echo "-- Detect-Shrink output --"
+    cat "$tmp_out"
+    echo "-- end --"
+  else
+    echo "No details captured from Detect-Shrink stdout/stderr."
+    echo "Check scripts/detect_shrink.log for details."
+  fi
+  exit 1
+fi
+
+rm -f "$tmp_out" >/dev/null 2>&1
+exit 0

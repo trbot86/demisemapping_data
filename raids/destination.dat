@@ -1,0 +1,7 @@
+# this is a special file that allows you to travel directly to the destination tile
+# (selected by mouseover on minimap just like you would when spawning a TravelPlayer)
+# but using a RaidPlayer instead of a TravelPlayer.
+# the point is to fight everything on the way using RaidPlayer rules.
+#
+# this special file does not need any raid locations in it.
+# it exists only to register an entry in the list of raids.
